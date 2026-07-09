@@ -1,0 +1,29 @@
+@import url('https://fonts.googleapis.com/css2?family=Bitcount+Grid+Single:wght@100..900&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Silkscreen:wght@400;700&display=swap');
+@import "tailwindcss";
+
+
+
+
+@theme {
+  /* Matte dark greys instead of bluish slates */
+  --font-chakra: "Chakra Petch",sans-serif;
+  --font-silkscreen: "Silkscreen",sans-serif;
+  --font-bitcount: "Bitcount Grid Single", sans-serif;
+
+  --color-bg-main: #121212;       /* Near-black deep matte background */
+  --color-bg-panel: #1e1e1e;      /* Premium component/card background */
+  --color-bg-panel-hover: #262626;/* Subtle hover state for interactive rows */
+  
+  /* Borders & Dividers */
+  --color-border-muted: #2e2e2e;  /* Low-contrast techy border */
+  --color-border-focus: #4a4a4a;  /* Slightly sharper border for active/hover */
+
+  /* Pure Neutral Text Colors */
+  --color-text-primary: #8f25f5;  
+  --color-text-dulled: #a855f7;
+  --color-text-secondary: #bfbfbf; /* Subdued neutral grey for descriptions */
+  --color-text-accent: #e5e5e5;    /* Bright silver accent instead of blue */
+}
+html{
+  background-color: var(--color-bg-main);
+}
