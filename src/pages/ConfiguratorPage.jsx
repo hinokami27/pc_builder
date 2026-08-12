@@ -19,6 +19,10 @@ export default function ConfiguratorPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const processedParamsRef = useRef(null);
+  const lastFetchedDtoRef = useRef(null);
+  const activeAbortControllerRef = useRef(null);
+
+  const [estimatedWattage, setEstimatedWattage] = useState(null);
 
   const [currentBuild, setCurrentBuild] = useState({
     cpu: null,
@@ -30,6 +34,68 @@ export default function ConfiguratorPage() {
     case: null,
     psu: null
   });
+
+  // Fetch estimated wattage for current build configuration with debounce & deduplication
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
+    const dto = {
+      cpuUrl: saved.cpu || null,
+      coolerUrl: saved.cooler || null,
+      motherboardUrl: saved.motherboard || null,
+      gpuUrl: saved.gpu || null,
+      ramUrls: Array.isArray(saved.ram) ? saved.ram : (saved.ram ? [saved.ram] : []),
+      storageUrls: Array.isArray(saved.disk) ? saved.disk : (saved.disk ? [saved.disk] : []),
+      caseUrl: saved.case || null,
+      psuUrl: saved.psu || null
+    };
+
+    const dtoString = JSON.stringify(dto);
+
+    // Skip if we already fetched or are fetching this exact DTO
+    if (lastFetchedDtoRef.current === dtoString) {
+      return;
+    }
+
+    // Cancel any active in-flight request
+    if (activeAbortControllerRef.current) {
+      activeAbortControllerRef.current.abort();
+    }
+
+    const controller = new AbortController();
+    activeAbortControllerRef.current = controller;
+
+    // Debounce to batch rapid consecutive renders/mounts
+    const timer = setTimeout(async () => {
+      lastFetchedDtoRef.current = dtoString;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/compatible/wattage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: dtoString,
+          signal: controller.signal
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const val = typeof data === 'object' && data !== null ? (data.wattage ?? data.value ?? Object.values(data)[0]) : data;
+          const parsedInt = typeof val === 'number' ? val : parseInt(val, 10);
+          setEstimatedWattage(!isNaN(parsedInt) ? parsedInt : null);
+        } else {
+          setEstimatedWattage(null);
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching compatible wattage:', err);
+          setEstimatedWattage(null);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [currentBuild]);
 
   const fetchPartDetails = async (type, url) => {
     try {
@@ -101,6 +167,7 @@ export default function ConfiguratorPage() {
   }, [searchParams, setSearchParams, loadBuild]);
 
   const handleRemove = (id, index) => {
+    lastFetchedDtoRef.current = null;
     const savedConfig = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
     if (id === 'ram' || id === 'disk') {
       const existing = savedConfig[id];
@@ -130,7 +197,7 @@ export default function ConfiguratorPage() {
 
       {/* Configuration Header Diagnostics Panel */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-border-muted pb-6 gap-4">
-        <div>
+        <div className='pt-8'>
           <h1 className="font-display text-3xl font-black text-text-accent tracking-widest uppercase">
             System_Configurator
           </h1>
@@ -175,7 +242,7 @@ export default function ConfiguratorPage() {
 
                 {isMultiple && selectedParts.length > 0 && (
                   <button
-                    onClick={() => navigate(`/products/${slot.id}?fromConfigurator=true`)}
+                    onClick={() => navigate(`/products/${slot.id}`, { state: { fromConfigurator: true, estimatedWattage: slot.id === 'psu' ? estimatedWattage : undefined } })}
                     className="text-[10px] font-black tracking-widest text-text-primary hover:text-text-accent uppercase border border-border-muted hover:border-text-primary px-2 py-1.5 transition-all cursor-pointer select-none"
                   >
                     + ADD MORE
@@ -284,7 +351,7 @@ export default function ConfiguratorPage() {
 
                     {/* Bumpy 3D Action Button Custom Trigger */}
                     <button
-                      onClick={() => navigate(`/products/${slot.id}?fromConfigurator=true`)}
+                      onClick={() => navigate(`/products/${slot.id}`, { state: { fromConfigurator: true, estimatedWattage: slot.id === 'psu' ? estimatedWattage : undefined } })}
                       className="bg-text-primary text-bg-main px-4 py-2 text-xs font-black tracking-widest uppercase transition-all duration-75 border border-transparent shadow-[0_3px_0_0_rgb(73,12,133)] hover:bg-text-dulled hover:text-white active:translate-y-1 active:shadow-none cursor-pointer"
                     >
                       + Add Item

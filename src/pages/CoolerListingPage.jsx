@@ -1,10 +1,17 @@
 import ProductListingTemplate from '../components/ProductListingTemplate';
 
+const COOLER_FILTERS = [
+  { key: 'sockets',    label: 'Socket'      },
+  { key: 'brand',      label: 'Brand'       },
+  { key: 'coolerType', label: 'Cooler Type' },
+];
+
 export default function CoolerListingPage() {
   return (
     <ProductListingTemplate
       endpoint="cooler"
       title="CPU_Coolers"
+      filters={COOLER_FILTERS}
       renderSpecs={(product) => (
         <>
           <span>Type: <span className="text-text-primary">{product.coolerType || 'N/A'}</span></span>

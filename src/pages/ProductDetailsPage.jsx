@@ -139,8 +139,8 @@ export default function ProductDetailsPage() {
   return (
     <div className="py-12 space-y-12 font-chakra">
       {/* Navigation Breadcrumb */}
-      <Link to={`/configurator`} className="text-text-accent text-sm uppercase tracking-widest underline underline-offset-2 hover:text-text-primary hover:decoration-2 transition-all duration-200 block">
-        &lt; Back to Configurator
+      <Link to={-1} className="text-text-accent text-sm uppercase tracking-widest underline underline-offset-2 hover:text-text-primary hover:decoration-2 transition-all duration-200 block">
+        &lt; Go Back
       </Link>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-bg-panel border border-border-muted p-8">
