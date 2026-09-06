@@ -23,6 +23,8 @@ export default function ConfiguratorPage() {
   const activeAbortControllerRef = useRef(null);
 
   const [estimatedWattage, setEstimatedWattage] = useState(null);
+  const [compatibilityWarnings, setCompatibilityWarnings] = useState([]);
+  const [isCheckingCompatibility, setIsCheckingCompatibility] = useState(false);
 
   const [currentBuild, setCurrentBuild] = useState({
     cpu: null,
@@ -35,7 +37,7 @@ export default function ConfiguratorPage() {
     psu: null
   });
 
-  // Fetch estimated wattage for current build configuration with debounce & deduplication
+  // Fetch estimated wattage & compatibility check for current build configuration with debounce & deduplication
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
     const dto = {
@@ -64,30 +66,53 @@ export default function ConfiguratorPage() {
     const controller = new AbortController();
     activeAbortControllerRef.current = controller;
 
+    setIsCheckingCompatibility(true);
+
     // Debounce to batch rapid consecutive renders/mounts
     const timer = setTimeout(async () => {
       lastFetchedDtoRef.current = dtoString;
 
       try {
-        const response = await fetch(`http://localhost:8080/api/compatible/wattage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: dtoString,
-          signal: controller.signal
-        });
+        const [wattageRes, checkRes] = await Promise.all([
+          fetch(`http://localhost:8080/api/compatible/wattage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: dtoString,
+            signal: controller.signal
+          }),
+          fetch(`http://localhost:8080/api/compatible/check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: dtoString,
+            signal: controller.signal
+          })
+        ]);
 
-        if (response.ok) {
-          const data = await response.json();
+        if (wattageRes.ok) {
+          const data = await wattageRes.json();
           const val = typeof data === 'object' && data !== null ? (data.wattage ?? data.value ?? Object.values(data)[0]) : data;
           const parsedInt = typeof val === 'number' ? val : parseInt(val, 10);
           setEstimatedWattage(!isNaN(parsedInt) ? parsedInt : null);
         } else {
           setEstimatedWattage(null);
         }
+
+        if (checkRes.ok) {
+          const data = await checkRes.json();
+          const warningsList = Array.isArray(data) ? data : (Array.isArray(data?.warnings) ? data.warnings : []);
+          setCompatibilityWarnings(warningsList);
+        } else {
+          setCompatibilityWarnings([]);
+        }
       } catch (err) {
         if (err.name !== 'AbortError') {
-          console.error('Error fetching compatible wattage:', err);
+          console.error('Error fetching compatibility diagnostics:', err);
           setEstimatedWattage(null);
+          setCompatibilityWarnings([]);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsCheckingCompatibility(false);
         }
       }
     }, 200);
@@ -192,6 +217,11 @@ export default function ConfiguratorPage() {
     return sum + (val ? val.price : 0);
   }, 0);
 
+  const totalPartsCount = Object.values(currentBuild).reduce((acc, val) => {
+    if (Array.isArray(val)) return acc + val.length;
+    return acc + (val ? 1 : 0);
+  }, 0);
+
   return (
     <div className="space-y-8 mb-12 font-chakra">
 
@@ -213,6 +243,62 @@ export default function ConfiguratorPage() {
             {totalCost.toLocaleString()} ден.
           </div>
         </div>
+      </div>
+
+      {/* Compatibility Diagnostics Panel */}
+      <div className="bg-bg-panel border border-border-muted p-5 space-y-3">
+        <div className="flex items-center justify-between border-b border-border-muted pb-3">
+          <div className="flex items-center gap-3">
+            <span className={`w-3 h-3 rounded-full ${
+              isCheckingCompatibility
+                ? 'bg-amber-400 animate-ping'
+                : compatibilityWarnings.length > 0
+                ? 'bg-red-500 animate-pulse'
+                : totalPartsCount > 0
+                ? 'bg-emerald-400'
+                : 'bg-text-secondary'
+            }`} />
+            <h2 className="text-sm font-bold tracking-wider uppercase text-text-accent font-display">
+              // COMPATIBILITY_DIAGNOSTICS_MATRIX
+            </h2>
+          </div>
+          {isCheckingCompatibility && (
+            <span className="text-xs text-amber-400 font-mono animate-pulse">
+              [ EVALUATING COMPATIBILITY... ]
+            </span>
+          )}
+        </div>
+
+        {compatibilityWarnings.length > 0 ? (
+          <div className="bg-red-950/30 border border-red-500/40 p-4 space-y-2">
+            <div className="flex items-center gap-2 text-red-400 text-xs font-bold uppercase tracking-wider">
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>System Incompatibilities Detected ({compatibilityWarnings.length})</span>
+            </div>
+            <ul className="space-y-1.5 pl-6 list-disc text-red-200 text-xs font-mono">
+              {compatibilityWarnings.map((warning, idx) => (
+                <li key={idx} className="leading-relaxed">
+                  {warning}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : totalPartsCount > 0 ? (
+          <div className="bg-emerald-950/20 border border-emerald-500/30 p-3.5 flex items-center gap-3">
+            <svg className="w-4 h-4 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-emerald-300 text-xs font-mono tracking-wide">
+              All selected components are compatible. No hardware conflicts detected.
+            </span>
+          </div>
+        ) : (
+          <div className="text-text-secondary text-xs font-mono p-2">
+            // No components allocated yet. Select parts to begin live compatibility check.
+          </div>
+        )}
       </div>
 
       {/* Main Structural Layout Rows Container */}
