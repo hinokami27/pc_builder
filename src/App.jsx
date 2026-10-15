@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import LandingPage from './pages/LandingPage';
@@ -13,6 +12,8 @@ import DiskListingPage from './pages/DiskListingPage';
 import CoolerListingPage from './pages/CoolerListingPage';
 import CaseListingPage from './pages/CaseListingPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
+import RigGeneratorPage from './pages/RigGeneratorPage';
+import InventoryPage from './pages/InventoryPage';
 
 export default function App() {
   return (
@@ -36,6 +37,8 @@ export default function App() {
             <Route path="/products/case" element={<CaseListingPage />} /> {/* This line was already present, no change needed */}
             <Route path="/product/details" element={<ProductDetailsPage />} /> {/* This line was already present, no change needed */}
             <Route path="/configurator" element={<ConfiguratorPage />} />
+            <Route path="/rig-generator" element={<RigGeneratorPage />} />
+            <Route path="/inventory" element={<InventoryPage />} />
           </Routes>
         </main>
       </div>

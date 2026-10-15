@@ -47,17 +47,17 @@ export default function LandingPage() {
       {/* Features Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 justify-items-center">
         <FeatureCard 
-          icon="⚡" 
+          icon="// 01" 
           title="Wattage Matrix" 
           description="Aggregates active continuous electrical overhead dynamically across your custom hardware manifest." 
         />
         <FeatureCard 
-          icon="📊" 
+          icon="// 02" 
           title="PSU Tier Reference" 
           description="Cross-references hardware classifications using community-curated safety database indices." 
         />
         <FeatureCard 
-          icon="🛠️" 
+          icon="// 03" 
           title="Parametric Check" 
           description="Flags structural dimensions, physical layouts, and slot socket misalignments instantly." 
         />

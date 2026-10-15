@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import SaveBuildModal from '../components/SaveBuildModal';
+import { saveBuild } from '../utils/inventoryStorage';
 
 // 1. Define the official hardware rows manifest array
 const COMPONENT_SLOTS = [
@@ -36,6 +38,9 @@ export default function ConfiguratorPage() {
     case: null,
     psu: null
   });
+
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [saveWarning, setSaveWarning] = useState(null);
 
   // Fetch estimated wattage & compatibility check for current build configuration with debounce & deduplication
   useEffect(() => {
@@ -123,6 +128,7 @@ export default function ConfiguratorPage() {
   }, [currentBuild]);
 
   const fetchPartDetails = async (type, url) => {
+    if (!url || typeof url !== 'string' || url === 'null' || url === 'undefined') return null;
     try {
       const response = await fetch(`http://localhost:8080/api/${type}/find?url=${encodeURIComponent(url)}`);
       if (response.ok) {
@@ -148,13 +154,17 @@ export default function ConfiguratorPage() {
     };
 
     const loadPromises = Object.entries(savedConfig).map(async ([type, val]) => {
+      if (!val) return;
       if (type === 'ram' || type === 'disk') {
         const urls = Array.isArray(val) ? val : (val ? [val] : []);
-        const detailsList = await Promise.all(urls.map(url => fetchPartDetails(type, url)));
+        const validUrls = urls.filter(u => u && typeof u === 'string' && u !== 'null' && u !== 'undefined');
+        const detailsList = await Promise.all(validUrls.map(url => fetchPartDetails(type, url)));
         newBuild[type] = detailsList.filter(Boolean);
       } else {
-        const details = await fetchPartDetails(type, val);
-        if (details) newBuild[type] = details;
+        if (typeof val === 'string' && val !== 'null' && val !== 'undefined') {
+          const details = await fetchPartDetails(type, val);
+          if (details) newBuild[type] = details;
+        }
       }
     });
 
@@ -222,6 +232,27 @@ export default function ConfiguratorPage() {
     return acc + (val ? 1 : 0);
   }, 0);
 
+  const handleSaveBuildClick = () => {
+    if (totalPartsCount === 0) {
+      setSaveWarning('// ERROR: CANNOT ARCHIVE EMPTY SYSTEM. ALLOCATE COMPONENTS FIRST.');
+      setTimeout(() => setSaveWarning(null), 3500);
+      return;
+    }
+    setIsSaveModalOpen(true);
+  };
+
+  const handleSaveConfirm = (buildName) => {
+    const savedConfig = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || '{}');
+    saveBuild({
+      name: buildName,
+      config: savedConfig,
+      partsSnapshot: currentBuild,
+      totalPrice: totalCost,
+      estimatedWattage,
+      source: 'Configurator'
+    });
+  };
+
   return (
     <div className="space-y-8 mb-12 font-chakra">
 
@@ -236,14 +267,42 @@ export default function ConfiguratorPage() {
           </p>
         </div>
 
-        {/* Live Bill-of-Materials aggregate counter */}
-        <div className="bg-bg-panel border border-border-muted p-4 min-w-50 text-right border-t-0">
-          <div className="text-text-secondary text-xs uppercase tracking-wider font-bold">EST_ESTIMATED_TOTAL</div>
-          <div className="text-2xl font-black text-text-accent mt-1">
-            {totalCost.toLocaleString()} ден.
+        {/* Live Bill-of-Materials aggregate counter & Save Build Action */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+          <div className="bg-bg-panel border border-border-muted p-4 min-w-50 text-right">
+            <div className="text-text-secondary text-xs uppercase tracking-wider font-bold">EST_ESTIMATED_TOTAL</div>
+            <div className="text-2xl font-black text-text-accent mt-1">
+              {totalCost.toLocaleString()} ден.
+            </div>
           </div>
+
+          <button
+            onClick={handleSaveBuildClick}
+            className="bg-text-primary text-bg-main px-5 py-4 text-xs font-black tracking-widest uppercase transition-all duration-75 border border-transparent shadow-[0_4px_0_0_rgb(73,12,133)] hover:bg-text-dulled hover:text-white active:translate-y-1 active:shadow-none cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Save Build</span>
+          </button>
         </div>
       </div>
+
+      {/* Save Warning Notification */}
+      {saveWarning && (
+        <div className="bg-amber-950/40 border border-amber-500/50 p-3 text-amber-300 text-xs font-mono flex items-center gap-2 animate-fadeIn">
+          <span>{saveWarning}</span>
+        </div>
+      )}
+
+      {/* Save Build Modal */}
+      <SaveBuildModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        defaultName={`Custom Rig ${new Date().toLocaleDateString()}`}
+        totalPrice={totalCost}
+        partsCount={totalPartsCount}
+        estimatedWattage={estimatedWattage}
+        source="Configurator"
+        onSave={handleSaveConfirm}
+      />
 
       {/* Compatibility Diagnostics Panel */}
       <div className="bg-bg-panel border border-border-muted p-5 space-y-3">
