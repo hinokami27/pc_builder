@@ -70,8 +70,8 @@ export default function Navbar() {
         </Link>
         
         <Link 
-          to="/"
-          className={`cursor-pointer transition-colors ${isActive('/') && location.pathname === '/' ? 'text-text-secondary hover:text-text-primary' : 'text-text-secondary hover:text-text-primary'}`}
+          to="/build-guides"
+          className={`cursor-pointer transition-colors ${isActive('/build-guides') ? 'text-text-primary font-bold' : 'text-text-secondary hover:text-text-primary'}`}
         >
           // &nbsp;Build Guides
         </Link>

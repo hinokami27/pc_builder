@@ -19,7 +19,7 @@ export default function InventoryPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sourceFilter, setSourceFilter] = useState('ALL');
   const [sortBy, setSortBy] = useState('newest');
-  
+
   const [editingBuildId, setEditingBuildId] = useState(null);
   const [editName, setEditName] = useState('');
   const [expandedBuildId, setExpandedBuildId] = useState(null);
@@ -113,7 +113,7 @@ export default function InventoryPage() {
     partsLines.push(`Total Cost: ${(build.totalPrice || 0).toLocaleString()} MKD`);
     if (build.estimatedWattage) partsLines.push(`Estimated Wattage: ~${build.estimatedWattage} W`);
     partsLines.push('--------------------------------------------------');
-    
+
     COMPONENT_SLOTS.forEach((slot) => {
       const part = build.partsSnapshot?.[slot.id];
       if (Array.isArray(part)) {
@@ -209,25 +209,22 @@ export default function InventoryPage() {
           <div className="flex border border-border-muted bg-bg-main p-0.5 text-xs font-mono">
             <button
               onClick={() => setSourceFilter('ALL')}
-              className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                sourceFilter === 'ALL' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
-              }`}
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${sourceFilter === 'ALL' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
+                }`}
             >
               ALL ({builds.length})
             </button>
             <button
               onClick={() => setSourceFilter('MANUAL')}
-              className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                sourceFilter === 'MANUAL' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
-              }`}
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${sourceFilter === 'MANUAL' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
+                }`}
             >
               CONFIGURATOR
             </button>
             <button
               onClick={() => setSourceFilter('AI')}
-              className={`px-3 py-1.5 transition-colors cursor-pointer ${
-                sourceFilter === 'AI' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
-              }`}
+              className={`px-3 py-1.5 transition-colors cursor-pointer ${sourceFilter === 'AI' ? 'bg-text-primary text-bg-main font-bold' : 'text-text-secondary hover:text-text-accent'
+                }`}
             >
               AI BUILDS
             </button>
@@ -261,7 +258,7 @@ export default function InventoryPage() {
       {filteredBuilds.length === 0 ? (
         /* Empty State */
         <div className="bg-bg-panel border border-border-muted p-12 text-center space-y-6">
-          <div className="w-16 h-16 border border-border-muted bg-bg-main flex items-center justify-center mx-auto text-xs font-mono font-bold text-text-secondary tracking-widest">
+          <div className="w-20 h-16 border border-border-muted bg-bg-main flex items-center justify-center mx-auto text-xs font-mono font-bold text-text-secondary tracking-widest">
             [ EMPTY ]
           </div>
           <div className="space-y-2">
@@ -317,11 +314,10 @@ export default function InventoryPage() {
                     <div className="flex flex-wrap items-center gap-2.5">
                       {/* Source Badge */}
                       <span
-                        className={`text-[10px] font-mono font-bold px-2 py-0.5 border ${
-                          build.source === 'AI Rig Generator'
-                            ? 'text-purple-400 border-purple-500/40 bg-purple-950/20'
-                            : 'text-cyan-400 border-cyan-500/40 bg-cyan-950/20'
-                        }`}
+                        className={`text-[10px] font-mono font-bold px-2 py-0.5 border ${build.source === 'AI Rig Generator'
+                          ? 'text-purple-400 border-purple-500/40 bg-purple-950/20'
+                          : 'text-cyan-400 border-cyan-500/40 bg-cyan-950/20'
+                          }`}
                       >
                         {build.source === 'AI Rig Generator' ? 'AI RIG GENERATOR' : 'CONFIGURATOR'}
                       </span>
@@ -538,11 +534,10 @@ export default function InventoryPage() {
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => handleCopyManifest(build)}
-                      className={`text-xs font-mono uppercase tracking-wider px-3 py-1.5 border transition-colors cursor-pointer ${
-                        isCopied
-                          ? 'border-emerald-500 text-emerald-400 bg-emerald-950/30'
-                          : 'border-border-muted text-text-secondary hover:text-text-accent hover:border-text-primary'
-                      }`}
+                      className={`text-xs font-mono uppercase tracking-wider px-3 py-1.5 border transition-colors cursor-pointer ${isCopied
+                        ? 'border-emerald-500 text-emerald-400 bg-emerald-950/30'
+                        : 'border-border-muted text-text-secondary hover:text-text-accent hover:border-text-primary'
+                        }`}
                     >
                       {isCopied ? 'Manifest Copied!' : 'Copy Text Manifest'}
                     </button>

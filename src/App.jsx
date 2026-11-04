@@ -14,6 +14,7 @@ import CaseListingPage from './pages/CaseListingPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import RigGeneratorPage from './pages/RigGeneratorPage';
 import InventoryPage from './pages/InventoryPage';
+import BuildGuidesPage from './pages/BuildGuidesPage';
 
 export default function App() {
   return (
@@ -39,6 +40,7 @@ export default function App() {
             <Route path="/configurator" element={<ConfiguratorPage />} />
             <Route path="/rig-generator" element={<RigGeneratorPage />} />
             <Route path="/inventory" element={<InventoryPage />} />
+            <Route path="/build-guides" element={<BuildGuidesPage />} />
           </Routes>
         </main>
       </div>
