@@ -78,6 +78,22 @@ export default function ConfiguratorPage() {
       lastFetchedDtoRef.current = dtoString;
 
       try {
+        // Render backend deploy copies:
+        const [wattageRes, checkRes] = await Promise.all([
+          fetch(`https://pc-builder-back.onrender.com/api/compatible/wattage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: dtoString,
+            signal: controller.signal
+          }),
+          fetch(`https://pc-builder-back.onrender.com/api/compatible/check`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: dtoString,
+            signal: controller.signal
+          })
+        ]);
+        /* Localhost copies:
         const [wattageRes, checkRes] = await Promise.all([
           fetch(`http://localhost:8080/api/compatible/wattage`, {
             method: 'POST',
@@ -92,6 +108,7 @@ export default function ConfiguratorPage() {
             signal: controller.signal
           })
         ]);
+        */
 
         if (wattageRes.ok) {
           const data = await wattageRes.json();
@@ -130,7 +147,10 @@ export default function ConfiguratorPage() {
   const fetchPartDetails = async (type, url) => {
     if (!url || typeof url !== 'string' || url === 'null' || url === 'undefined') return null;
     try {
-      const response = await fetch(`http://localhost:8080/api/${type}/find?url=${encodeURIComponent(url)}`);
+      // Render backend deploy copy:
+      const response = await fetch(`https://pc-builder-back.onrender.com/api/${type}/find?url=${encodeURIComponent(url)}`);
+      // Localhost copy:
+      // const response = await fetch(`http://localhost:8080/api/${type}/find?url=${encodeURIComponent(url)}`);
       if (response.ok) {
         const data = await response.json();
         return {

@@ -118,7 +118,10 @@ export default function RigGeneratorPage() {
     };
 
     try {
-      const response = await fetch('http://localhost:8080/api/ai-builds/generate', {
+      // Render backend deploy copy:
+      const response = await fetch('https://pc-builder-back.onrender.com/api/ai-builds/generate', {
+      // Localhost copy:
+      // const response = await fetch('http://localhost:8080/api/ai-builds/generate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

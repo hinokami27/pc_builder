@@ -161,13 +161,19 @@ export default function ProductListingTemplate({ endpoint, title, renderSpecs, f
             psuUrl: saved.psu || null
           };
           const targetComponent = pluralMap[endpoint] || `${endpoint}s`;
-          response = await fetch(`http://localhost:8080/api/compatible/${targetComponent}`, {
+          // Render backend deploy copy:
+          response = await fetch(`https://pc-builder-back.onrender.com/api/compatible/${targetComponent}`, {
+          // Localhost copy:
+          // response = await fetch(`http://localhost:8080/api/compatible/${targetComponent}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dto)
           });
         } else {
-          response = await fetch(`http://localhost:8080/api/${endpoint}/all`);
+          // Render backend deploy copy:
+          response = await fetch(`https://pc-builder-back.onrender.com/api/${endpoint}/all`);
+          // Localhost copy:
+          // response = await fetch(`http://localhost:8080/api/${endpoint}/all`);
         }
 
         if (!response.ok) {
@@ -306,7 +312,10 @@ export default function ProductListingTemplate({ endpoint, title, renderSpecs, f
       };
 
       try {
-        const response = await fetch(`http://localhost:8080/api/compatible/wattage`, {
+        // Render backend deploy copy:
+        const response = await fetch(`https://pc-builder-back.onrender.com/api/compatible/wattage`, {
+        // Localhost copy:
+        // const response = await fetch(`http://localhost:8080/api/compatible/wattage`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dto)
@@ -356,7 +365,7 @@ export default function ProductListingTemplate({ endpoint, title, renderSpecs, f
             >
               <div className={`h-8 w-8 sm:h-10 sm:w-10 transition-transform ${isActive ? '' : 'group-hover:scale-110'}`}>
                 <img
-                  src={`/src/assets/${cat.id}.png`}
+                  src={`/assets/${cat.id}.png`}
                   alt={cat.label}
                   className="w-full h-full object-contain"
                 />

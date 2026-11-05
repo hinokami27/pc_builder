@@ -8,7 +8,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'CPU',
     tag: 'THE CENTRAL ENGINE',
     summary: 'The central processing unit performs all general computations, game physics, AI pathfinding, and operating system instructions.',
-    image: '/src/assets/cpu.png',
+    image: '/assets/cpu.png',
     storePath: '/products/cpu',
     keySpecs: [
       { label: 'Cores & Threads', detail: 'More cores enhance multitasking & video editing; 6–8 fast cores are the gaming sweet spot.' },
@@ -35,7 +35,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'GPU',
     tag: 'VISUAL RENDERING CORE',
     summary: 'Renders 3D geometry, high-resolution textures, ray-traced reflections, and accelerates AI frame generation.',
-    image: '/src/assets/gpu.png',
+    image: '/assets/gpu.png',
     storePath: '/products/gpu',
     keySpecs: [
       { label: 'VRAM Capacity', detail: 'Minimum 8GB for 1080p; 12GB–16GB strongly advised for modern AAA titles at 1440p and 4K.' },
@@ -62,7 +62,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'MOBO',
     tag: 'NERVOUS SYSTEM & BUS',
     summary: 'The main circuit board connecting every component, regulating power delivery, and routing PCIe data lanes.',
-    image: '/src/assets/motherboard.png',
+    image: '/assets/motherboard.png',
     storePath: '/products/motherboard',
     keySpecs: [
       { label: 'Form Factor', detail: 'ATX (standard expansion), Micro-ATX (compact value leader), Mini-ITX (small form factor).' },
@@ -89,7 +89,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'RAM',
     tag: 'HIGH-SPEED CACHE BUS',
     summary: 'Ultra-fast volatile system memory holding current running programs, textures, and active game data.',
-    image: '/src/assets/ram.png',
+    image: '/assets/ram.png',
     storePath: '/products/ram',
     keySpecs: [
       { label: 'Memory Generation', detail: 'DDR5 is the modern gold standard (4800–6400+ MT/s); DDR4 remains in entry-level budget rigs.' },
@@ -116,7 +116,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'STORAGE',
     tag: 'FAST NON-VOLATILE FLASH',
     summary: 'High-speed solid state storage for the operating system, games, and large files with near-instant boot and load times.',
-    image: '/src/assets/disk.png',
+    image: '/assets/disk.png',
     storePath: '/products/disk',
     keySpecs: [
       { label: 'Interface & Gen', detail: 'PCIe Gen 4 NVMe M.2 is the gold standard (up to 7,400 MB/s); Gen 5 reaches 14,000 MB/s.' },
@@ -143,7 +143,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'COOLER',
     tag: 'THERMAL DISSIPATION',
     summary: 'Dissipates CPU heat to prevent thermal throttling and ensure maximum boost clock performance.',
-    image: '/src/assets/cooler.png',
+    image: '/assets/cooler.png',
     storePath: '/products/cooler',
     keySpecs: [
       { label: 'Air vs Liquid (AIO)', detail: 'Air coolers offer unbeatable reliability; AIO liquid coolers offer sleek looks and superior burst cooling.' },
@@ -170,7 +170,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'PSU',
     tag: 'ELECTRICAL POWER REGULATOR',
     summary: 'Converts wall AC current into clean DC voltages (+12V, +5V, +3.3V) with safety protections for all components.',
-    image: '/src/assets/psu.png',
+    image: '/assets/psu.png',
     storePath: '/products/psu',
     keySpecs: [
       { label: 'Wattage Capacity', detail: 'Aim for peak system draw + 150–200W headroom to operate in the 50%–70% peak efficiency curve.' },
@@ -197,7 +197,7 @@ const COMPONENT_GUIDES = [
     tabLabel: 'CASE',
     tag: 'STRUCTURAL AIRFLOW ENCLOSURE',
     summary: 'The physical enclosure that holds components securely, directs cool airflow, and dampens acoustic noise.',
-    image: '/src/assets/case.png',
+    image: '/assets/case.png',
     storePath: '/products/case',
     keySpecs: [
       { label: 'Front Panel Airflow', detail: 'Mesh front panels provide drastically lower component temps and lower fan RPMs vs solid glass.' },

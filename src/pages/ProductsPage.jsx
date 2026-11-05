@@ -32,7 +32,7 @@ export default function ProductsPage() {
           >
             <div className="mb-6 group-hover:scale-110 transition-transform h-16 w-16">
               <img 
-                src={`/src/assets/${cat.id}.png`} 
+                src={`/assets/${cat.id}.png`} 
                 alt={cat.label} 
                 className="w-full h-full object-contain" 
               />

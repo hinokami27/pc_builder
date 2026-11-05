@@ -23,7 +23,10 @@ export default function ProductDetailsPage() {
       setIsLoading(true);
       try {
         // Fetching from the dynamic category endpoint
-        const response = await fetch(`http://localhost:8080/api/${componentType}/find?url=${encodeURIComponent(storeUrl)}`);
+        // Render backend deploy copy:
+        const response = await fetch(`https://pc-builder-back.onrender.com/api/${componentType}/find?url=${encodeURIComponent(storeUrl)}`);
+        // Localhost copy:
+        // const response = await fetch(`http://localhost:8080/api/${componentType}/find?url=${encodeURIComponent(storeUrl)}`);
         if (!response.ok) {
           throw new Error(`Failed to locate module in registry: ${response.statusText}`);
         }
@@ -44,7 +47,10 @@ export default function ProductDetailsPage() {
       if (!storeUrl) return;
       setIsHistoryLoading(true);
       try {
-        const response = await fetch(`http://localhost:8080/api/price/history?url=${encodeURIComponent(storeUrl)}`);
+        // Render backend deploy copy:
+        const response = await fetch(`https://pc-builder-back.onrender.com/api/price/history?url=${encodeURIComponent(storeUrl)}`);
+        // Localhost copy:
+        // const response = await fetch(`http://localhost:8080/api/price/history?url=${encodeURIComponent(storeUrl)}`);
         if (response.ok) {
           const data = await response.json();
           const sorted = data.sort((a, b) => new Date(a.date) - new Date(b.date));
