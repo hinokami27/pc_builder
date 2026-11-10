@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { loadBuildToConfigurator } from '../utils/inventoryStorage';
 
 const COMPONENT_GUIDES = [
   {
@@ -294,9 +295,128 @@ const PSU_TIER_DATA = [
   }
 ];
 
+const PREMADE_CONFIGURATIONS = [
+  {
+    id: 'entry-level',
+    name: 'ENTRY LEVEL',
+    tier: 'Budget Esports Champion',
+    target: '1080p High-FPS Competitive AM5 Platform',
+    description: 'The optimal beginner entry into modern AM5 computing. Delivers smooth 1080p competitive esports framerates with high power efficiency and seamless future CPU upgrade support.',
+    priceMkd: 64525,
+    estimatedWattage: 550,
+    badgeColor: 'border-emerald-500 bg-emerald-500/10 text-emerald-400',
+    components: [
+      { label: 'CPU', name: 'AMD Ryzen 5 7500F (6C/12T, AM5)' },
+      { label: 'GPU', name: 'GeForce RTX 5060 WINDFORCE MAX OC 8GB' },
+      { label: 'Motherboard', name: 'Gigabyte B650M D3HP DDR5 (AM5)' },
+      { label: 'Cooler', name: 'Deepcool AG400 G2 Tower Cooler' },
+      { label: 'RAM', name: '16GB (2x8GB) Kingston Fury Beast DDR5' },
+      { label: 'Storage', name: 'Verbatim Vi3000 512GB PCIe M.2 SSD' },
+      { label: 'Case', name: 'Rampage Voyager Mesh ARGB' },
+      { label: 'PSU', name: 'ASUS TUF Gaming 550W 80+ Bronze' }
+    ],
+    config: {
+      cpu: 'https://www.anhoch.com/products/cpu-amd-ryzen-5-7500f-6core-37ghz-am5-33mb-tray-wo-cooler-2177',
+      cooler: 'https://www.anhoch.com/products/cooler-deepcool-ag400-g2-black-1700am5-8664',
+      motherboard: 'https://www.anhoch.com/products/mb-gigabyte-b650m-d3hp-ddr5-am5-7600mhz-oc2xm21gbit-lanusb32pcie-40hdmi2x-dp-7589',
+      gpu: 'https://www.anhoch.com/products/gigabyte-geforce-rtx-5060-windforce-max-oc-8gb-gddr6-hdmi3xdpdx12upcie-40-6902',
+      ram: [
+        'https://www.anhoch.com/products/dimm-8gb-ddr5-5200mhz-kingston-fury-beast-cl40-expo-7923',
+        'https://www.anhoch.com/products/dimm-8gb-ddr5-5200mhz-kingston-fury-beast-cl40-expo-7923'
+      ],
+      disk: [
+        'https://www.anhoch.com/products/ssd-m2-verbatim-vi3000-512gb-pcie-30-x4-2452'
+      ],
+      case: 'https://www.anhoch.com/products/atx-midi-tower-case-rampage-voyager-black-w600w-80-bronze-psu-4x120mm-argb-fans-mesh-front-7634',
+      psu: 'https://www.neptun.mk/categories/napojuvanja/84123485-ASUS-TUF-Gaming-550W-Bronze-80-PLUS-Bronze--TUF-GAMING-550B-'
+    }
+  },
+  {
+    id: 'high-end',
+    name: 'HIGH END',
+    tier: 'Sweet Spot 1440p / 4K',
+    target: 'Ultra 1440p High-FPS / Ray Tracing',
+    description: 'The community gaming gold standard. Balances the benchmark 7800X3D with the RTX 5070 Ti 16GB, 32GB fast DDR5-6000, and 2TB high-speed NVMe storage with robust digital tower cooling.',
+    priceMkd: 148205,
+    estimatedWattage: 750,
+    badgeColor: 'border-cyan-500 bg-cyan-500/10 text-cyan-400',
+    components: [
+      { label: 'CPU', name: 'AMD Ryzen 7 7800X3D (8C/16T, AM5)' },
+      { label: 'GPU', name: 'GeForce RTX 5070 Ti WINDFORCE OC 16GB' },
+      { label: 'Motherboard', name: 'Gigabyte B850M D3HP DDR5 (AM5)' },
+      { label: 'Cooler', name: 'Deepcool AK400 Digital SE Display Tower' },
+      { label: 'RAM', name: '32GB (2x16GB) Kingston Fury Beast DDR5-6000' },
+      { label: 'Storage', name: '2TB NVMe Total (Samsung + Verbatim Vi3000)' },
+      { label: 'Case', name: 'Rampage Compact Mesh High-Airflow' },
+      { label: 'PSU', name: 'ASUS TUF Gaming 750W 80+ Gold' }
+    ],
+    config: {
+      cpu: 'https://www.anhoch.com/products/cpu-amd-ryzen-7-7800x3d-8core-42ghz-am5-104mb-tray-wo-cooler-8628',
+      cooler: 'https://www.anhoch.com/products/cooler-deepcool-ak400-digital-se-black-1700am5-0373',
+      motherboard: 'https://www.anhoch.com/products/mb-gigabyte-b850m-d3hp-ddr5-am5-8200mhz-oc2xm21gbit-lanusb32pcie-40hdmi2x-dp-8449',
+      gpu: 'https://www.anhoch.com/products/gigabyte-geforce-rtx-5070-ti-windforce-oc-v2-16gb-gddr7-hdmi3xdpdx12upcie-50-6531',
+      ram: [
+        'https://www.anhoch.com/products/dimm-16gb-ddr5-6000mhz-kingston-fury-beast-cl36-xmp-expo-7922',
+        'https://www.anhoch.com/products/dimm-16gb-ddr5-6000mhz-kingston-fury-beast-cl36-xmp-expo-7922'
+      ],
+      disk: [
+        'https://www.anhoch.com/products/ssd-m2-verbatim-vi3000-1tb-pcie-30-x4-2453',
+        'https://www.anhoch.com/products/ssd-m2-samsung-nvme-990-evo-plus-1tb-pcie-40-x4-pcie-50-x2-8332'
+      ],
+      case: 'https://www.anhoch.com/products/atx-midi-tower-case-rampage-compact-black-w600w-psu-4x120mm-rainbow-fans-mesh-front-4158',
+      psu: 'https://www.neptun.mk/categories/napojuvanja/84123483-ASUS-TUF-Gaming-750W-Gold-Black-80-PLUS-Gold--TUF-GAMING-750G-'
+    }
+  },
+  {
+    id: 'limitless',
+    name: 'LIMITLESS',
+    tier: 'Flagship Extreme',
+    target: '4K Ultra Gaming & AI Workloads',
+    description: 'Uncompromising halo-tier performance. Features AMD’s flagship 9800X3D with 3D V-Cache paired with 32GB RTX 5090 graphics, dual-channel 64GB DDR5, and a 360mm LCD AIO liquid thermal solution.',
+    priceMkd: 388039,
+    estimatedWattage: 1000,
+    badgeColor: 'border-purple-500 bg-purple-500/10 text-purple-400',
+    components: [
+      { label: 'CPU', name: 'AMD Ryzen 7 9800X3D (8C/16T, AM5)' },
+      { label: 'GPU', name: 'GeForce RTX 5090 GAMING OC 32GB GDDR7' },
+      { label: 'Motherboard', name: 'Gigabyte B850M GAMING X WIFI6E (AM5)' },
+      { label: 'Cooler', name: 'NZXT Kraken Plus 360 RGB LCD Black AIO' },
+      { label: 'RAM', name: '64GB (2x32GB) Kingston Fury Beast DDR5-6000' },
+      { label: 'Storage', name: 'Samsung 990 PRO 2TB PCIe 4.0 NVMe' },
+      { label: 'Case', name: 'Deepcool CG580 Panoramic Glass (4 Fans)' },
+      { label: 'PSU', name: 'ASUS TUF Gaming 1000W 80+ Gold' }
+    ],
+    config: {
+      cpu: 'https://www.anhoch.com/products/cpu-amd-ryzen-7-9800x3d-8core-47ghz-am5-104mb-tray-wo-cooler-7731',
+      cooler: 'https://www.anhoch.com/products/cooler-liquid-nzxt-kraken-plus-360-rgb-lcd-black-8609',
+      motherboard: 'https://www.anhoch.com/products/mb-gigabyte-b850m-gaming-x-wifi6e-ddr5-am5-8200mhz-oc2xm225gbit-lanusb32pcie-50hdmi2x-dp-8447',
+      gpu: 'https://www.anhoch.com/products/gigabyte-geforce-rtx-5090-gaming-oc-32gb-gddr7-hdmi3xdpdx12upcie-50windforce-3x-6527',
+      ram: [
+        'https://www.anhoch.com/products/dimm-32gb-ddr5-6000mhz-kingston-fury-beast-cl36-xmp-expo-7921',
+        'https://www.anhoch.com/products/dimm-32gb-ddr5-6000mhz-kingston-fury-beast-cl36-xmp-expo-7921'
+      ],
+      disk: [
+        'https://www.anhoch.com/products/ssd-m2-samsung-nvme-990-pro-2tb-pcie-40-x4-7947'
+      ],
+      case: 'https://www.anhoch.com/products/atx-midi-tower-case-deepcool-cg580-4f-v2-black-panoramic-glass-wusb-30-x2-4x120mm-argb-fans-7632',
+      psu: 'https://www.neptun.mk/categories/napojuvanja/84123482-ASUS-TUF-Gaming-1000W-Gold-Black-80-PLUS-Gold--TUF-GAMING-1000G-'
+    }
+  }
+];
+
 export default function BuildGuidesPage() {
   const [activeTab, setActiveTab] = useState('cpu');
   const [psuSearch, setPsuSearch] = useState('');
+  const [loadedToast, setLoadedToast] = useState(null);
+  const navigate = useNavigate();
+
+  const handleLoadToConfigurator = (build) => {
+    loadBuildToConfigurator(build.config);
+    setLoadedToast(`Loaded "${build.name}" into Configurator! Redirecting...`);
+    setTimeout(() => {
+      navigate('/configurator');
+    }, 500);
+  };
 
   const currentGuide = COMPONENT_GUIDES.find((g) => g.id === activeTab) || COMPONENT_GUIDES[0];
 
@@ -322,6 +442,13 @@ export default function BuildGuidesPage() {
   return (
     <div className="font-chakra py-12 space-y-16">
 
+      {/* Floating Action Toast */}
+      {loadedToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-text-primary text-bg-main px-5 py-3 font-mono text-sm font-bold shadow-[0_4px_20px_rgba(143,37,245,0.4)] border border-white/20 animate-bounce">
+          // {loadedToast}
+        </div>
+      )}
+
       {/* Page Title & Breadcrumbs */}
       <div>
         <div className="flex items-center gap-2 text-xs font-mono text-text-secondary uppercase mb-2">
@@ -334,13 +461,26 @@ export default function BuildGuidesPage() {
             Hardware Architecture & Build Guides
           </h1>
           <p className="text-text-secondary text-sm mt-2 max-w-3xl leading-relaxed">
-            // Comprehensive component buying blueprints, curated step-by-step video masterclasses, and community-verified power supply safety indices.
+            // Curated turnkey starter blueprints, comprehensive component buying guidelines, step-by-step video masterclasses, and community-verified power supply safety indices.
           </p>
         </div>
       </div>
 
       {/* Quick Navigation Anchor Bar */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <a
+          href="#premade-section"
+          className="bg-bg-panel border border-border-muted hover:border-text-primary p-4 transition-all duration-150 group flex items-center justify-between"
+        >
+          <div>
+            <span className="text-[11px] font-mono text-text-accent tracking-wider">// SECTION 00</span>
+            <div className="text-base font-bold text-text-primary group-hover:text-text-accent transition-colors">
+              Starter Configurations
+            </div>
+          </div>
+          <span className="text-text-secondary group-hover:text-text-primary transition-transform group-hover:translate-x-1">↓</span>
+        </a>
+
         <a
           href="#components-section"
           className="bg-bg-panel border border-border-muted hover:border-text-primary p-4 transition-all duration-150 group flex items-center justify-between"
@@ -348,7 +488,7 @@ export default function BuildGuidesPage() {
           <div>
             <span className="text-[11px] font-mono text-text-accent tracking-wider">// SECTION 01</span>
             <div className="text-base font-bold text-text-primary group-hover:text-text-accent transition-colors">
-              Component Buying Guides
+              Component Guides
             </div>
           </div>
           <span className="text-text-secondary group-hover:text-text-primary transition-transform group-hover:translate-x-1">↓</span>
@@ -382,6 +522,91 @@ export default function BuildGuidesPage() {
       </div>
 
       {/* ========================================================================= */}
+      {/* SECTION 00: PREMADE HARDWARE CONFIGURATIONS (STARTER BLUEPRINTS)          */}
+      {/* ========================================================================= */}
+      <section id="premade-section" className="space-y-6 pt-2">
+        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-border-muted pb-4 gap-4">
+          <div>
+            <div className="text-xs font-mono text-text-accent tracking-widest uppercase">// SECTION 00 &middot; STARTER CONFIGURATIONS</div>
+            <h2 className="text-2xl font-black text-text-primary uppercase tracking-wide">
+              Showcased Blueprints
+            </h2>
+          </div>
+          <p className="text-xs text-text-secondary font-mono max-w-lg leading-relaxed">
+            // Pre-assembled hardware matrices designed for beginners. Zero guesswork, mathematically verified compatibility, and one-click launch directly into the Configurator.
+          </p>
+        </div>
+
+        {/* 3 Featured Configuration Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {PREMADE_CONFIGURATIONS.map((build) => (
+            <div
+              key={build.id}
+              className="bg-bg-panel border border-border-muted hover:border-border-focus p-6 flex flex-col justify-between transition-all duration-150 hover:-translate-y-1 relative group shadow-sm hover:shadow-[0_4px_25px_rgba(143,37,245,0.15)]"
+            >
+              <div>
+                {/* Card Top Pill Bar */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className={`text-[10px] font-mono uppercase px-2 py-0.5 border ${build.badgeColor}`}>
+                    {build.tier}
+                  </span>
+                  {/* <span className="text-[10px] font-mono text-text-secondary bg-bg-main border border-border-muted px-2 py-0.5">
+                    // ~{build.estimatedWattage}W PSU
+                  </span> */}
+                </div>
+
+                {/* Build Name & Subtitle */}
+                <h3 className="text-2xl font-black text-text-primary tracking-wide uppercase group-hover:text-text-accent transition-colors">
+                  {build.name}
+                </h3>
+                <div className="text-xs font-mono text-text-accent mt-0.5 mb-2">
+                  {build.target}
+                </div>
+                <p className="text-xs text-text-secondary leading-relaxed font-mono mb-5">
+                  {build.description}
+                </p>
+
+                {/* Price Display */}
+                <div className="bg-bg-main border border-border-muted p-3 mb-5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-mono text-text-secondary uppercase block">// ESTIMATED COST</span>
+                    <span className="text-xl font-black text-text-primary font-mono">
+                      {build.priceMkd.toLocaleString()} MKD
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-1">
+                    100% VERIFIED
+                  </span>
+                </div>
+
+                {/* Hardware Checklist */}
+                <div className="space-y-1.5 border-t border-border-muted pt-4 mb-6">
+                  <div className="text-[11px] font-mono text-text-secondary uppercase tracking-wider mb-2">
+                    // HARDWARE MATRIX:
+                  </div>
+                  {build.components.map((comp, idx) => (
+                    <div key={idx} className="flex items-start justify-between text-xs font-mono gap-2 py-1 border-b border-border-muted/40 last:border-0">
+                      <span className="text-text-secondary font-bold shrink-0">{comp.label}:</span>
+                      <span className="text-text-accent text-right truncate" title={comp.name}>{comp.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Button: Load to Configurator */}
+              <button
+                onClick={() => handleLoadToConfigurator(build)}
+                className="w-full mt-2 py-3 px-4 bg-text-primary text-bg-main font-bold font-mono text-xs uppercase tracking-wider shadow-[0_4px_0_0_rgb(73,12,133)] hover:shadow-[0_4px_0_0_rgb(73,12,133),inset_0_0_15px_rgba(255,255,255,0.3)] active:translate-y-0.5 active:shadow-none transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Open in Configurator</span>
+                <span className="text-base font-black">→</span>
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
       {/* SECTION 1: COMPONENT BUYING GUIDES TABS                                    */}
       {/* ========================================================================= */}
       <section id="components-section" className="space-y-6 pt-4">
@@ -406,8 +631,8 @@ export default function BuildGuidesPage() {
                 key={guide.id}
                 onClick={() => setActiveTab(guide.id)}
                 className={`flex items-center justify-center gap-1.5 px-1.5 lg:px-2 py-2.5 text-xs lg:text-sm font-bold uppercase transition-all duration-150 cursor-pointer whitespace-nowrap min-w-0 ${isActive
-                    ? 'bg-text-primary text-bg-main shadow-[0_2px_10px_rgba(143,37,245,0.4)]'
-                    : 'bg-bg-panel text-text-secondary hover:text-text-primary hover:bg-bg-panel-hover border border-border-muted'
+                  ? 'bg-text-primary text-bg-main shadow-[0_2px_10px_rgba(143,37,245,0.4)]'
+                  : 'bg-bg-panel text-text-secondary hover:text-text-primary hover:bg-bg-panel-hover border border-border-muted'
                   }`}
               >
                 <img

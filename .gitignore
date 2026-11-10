@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Brag & agent skills
+brag-output/
+brag-output*/
+.agents/
+skills-lock.json
+*.mp4
